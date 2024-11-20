@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Información de Empleados</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --color1: #C2FFC7;
+      --color2: #9EDF9C;
+      --color3: #62825D;
+      --color4: #526E48;
+      --color-highlight: #FFDD57;
+      --color-background: #F4F4F4;
+      --color-table-header: #4CAF50;
+      --color-table-row: #FFFFFF;
+      --color-table-row-alt: #F9F9F9;
+      --color-text: #333;
+      --color-footer-background: #333;
+      --color-footer-text: #fff;
+      --color-footer-link: #FFDD57;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: var(--color-background);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      overflow-y: auto;
+      width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      background-color: white;
+      table-layout: fixed;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow-x: auto; /* Hacer que la tabla sea desplazable en pantallas pequeñas */
+    }
+
+    th, td {
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5em;
+      color: var(--color-text);
+      word-wrap: break-word;
+      min-width: 150px;
+      min-height: 50px;
+    }
+
+    th {
+      background-color: var(--color-table-header);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr:nth-child(even) {
+      background-color: var(--color-table-row-alt);
+    }
+
+    tr:nth-child(odd) {
+      background-color: var(--color-table-row);
+    }
+
+    tr.highlight {
+      animation: highlightColor 1s infinite alternate;
+    }
+
+    @keyframes highlightColor {
+      0% {
+        background-color: var(--color-table-row);
+      }
+      50% {
+        background-color: var(--color-highlight);
+      }
+      100% {
+        background-color: var(--color-table-row);
+      }
+    }
+
+    footer {
+      font-size: 1.5em;
+      color: var(--color-footer-text);
+      text-align: center;
+      background-color: var(--color-footer-background);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .footer-text {
+      margin: 5px;
+    }
+
+    #current-time {
+      font-family: "Courier New", Courier, monospace; /* Fuente monoespaciada */
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    #last-updated {
+      font-size: 1em;
+    }
+
+    .copyright {
+      position: absolute;
+      bottom: 5px;
+      font-size: 0.6em;
+      color: #aaa;
+    }
+
+    /* Medias Queries para hacer el diseño responsivo */
+    @media (max-width: 768px) {
+      th, td {
+        font-size: 1.2em;
+        padding: 12px;
+      }
+
+      #current-time {
+        font-size: 2em;
+      }
+
+      #last-updated {
+        font-size: 1.2em;
+      }
+
+      footer {
+        flex-direction: column;
+        font-size: 1.2em;
+      }
+
+      .container {
+        padding: 0 10px;
+      }
+
+      table {
+        font-size: 1.2em;
+        overflow-x: auto;
+      }
+
+      table th, table td {
+        white-space: nowrap; /* Para evitar que el contenido se divida en varias líneas */
+      }
+    }
+
+    /* Medias Queries para pantallas muy pequeñas (ej. smartphones) */
+    @media (max-width: 480px) {
+      th, td {
+        font-size: 1em;
+        padding: 10px;
+      }
+
+      #current-time {
+        font-size: 1.5em;
+      }
+
+      #last-updated {
+        font-size: 1em;
+      }
+
+      footer {
+        font-size: 1.1em;
+      }
+
+      .footer-text {
+        font-size: 1.2em;
+      }
+
+      .copyright {
+        font-size: 1em;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <table>
+      <thead>
+        <tr>
+          <th><i class="fas fa-user"></i> Nombre</th>
+          <th><i class="fas fa-clock"></i> Hora de Entrada</th>
+          <th><i class="fas fa-hourglass-half"></i> Horas Trabajadas</th>
+          <th><i class="fas fa-sign-out-alt"></i> Salida Prevista</th>
+        </tr>
+      </thead>
+      <tbody id="employee-table">
+        <!-- Filas generadas dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    <div id="last-updated"><i class="fas fa-sync-alt"></i> Última actualización: --:--</div>
+    <div id="current-time"><i class="fas fa-clock"></i> --:--:--</div>
+    <div class="copyright">© 2024 PereirArt</div>
+  </footer>
+
+  <script>
+    const employeeData = [
+      { name: "Carlos García", entryTime: "08:00", hoursWorked: 4, exitExpected: "16:00" },
+      { name: "Ana Martínez", entryTime: "09:00", hoursWorked: 3, exitExpected: "17:30" },
+      { name: "Luis Fernández", entryTime: "07:30", hoursWorked: 5, exitExpected: "15:30" },
+      { name: "María López", entryTime: "10:00", hoursWorked: 2, exitExpected: "11:20" },
+      { name: "Pepe Perez", entryTime: "10:00", hoursWorked: 2, exitExpected: "12:15" },
+      { name: "Pepe López", entryTime: "10:00", hoursWorked: 2, exitExpected: "11:20" },
+      { name: "José José", entryTime: "10:00", hoursWorked: 2, exitExpected: "11:20" },
+      { name: "Manuel García", entryTime: "10:00", hoursWorked: 2, exitExpected: "16:50" },
+    ];
+
+    function updateEmployeeTable() {
+      const tableBody = document.getElementById("employee-table");
+      const now = new Date();
+      const lastUpdated = document.getElementById("last-updated");
+
+      // Limpiar el contenido actual de la tabla
+      tableBody.innerHTML = "";
+
+      // Procesar datos
+      employeeData.forEach(employee => {
+        const row = document.createElement("tr");
+
+        const exitTime = new Date();
+        const [exitHours, exitMinutes] = employee.exitExpected.split(":");
+        exitTime.setHours(exitHours, exitMinutes, 0);
+
+        const timeToExit = Math.floor((exitTime - now) / 60000); // Minutos restantes
+
+        // Resaltar al empleado si le faltan menos de 10 minutos para salir
+        if (timeToExit <= 10 && timeToExit > 0) {
+          row.classList.add("highlight"); // Resaltar si falta menos de 10 minutos
+        }
+
+        // Generar el contenido de la fila
+        row.innerHTML = `
+          <td>${employee.name}</td>
+          <td>${employee.entryTime}</td>
+          <td>${employee.hoursWorked} horas</td>
+          <td>${employee.exitExpected}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      // Actualizar hora de la última actualización
+      lastUpdated.textContent = `Última actualización: ${now.toLocaleTimeString()}`;
+    }
+
+    function updateCurrentTime() {
+      const currentTimeElement = document.getElementById("current-time");
+
+      // Obtener hora actual del navegador
+      const now = new Date();
+      const formattedTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+      currentTimeElement.innerHTML = `<i class="fas fa-clock"></i> ${formattedTime}`;
+    }
+
+    // Actualizar la hora cada segundo
+    setInterval(updateCurrentTime, 1000);
+
+    // Actualizar tabla al cargar la página
+    updateEmployeeTable();
+
+    // Refrescar la tabla cada minuto
+    setInterval(updateEmployeeTable, 60000);
+  </script>
+
+</body>
+</html>
